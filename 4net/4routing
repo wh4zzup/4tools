@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# start with while true; do sh/bash routing.sh; done for static routing by devices/IPs
+# you should use a static /etc/hosts for the IP you are using to be secure regarding DNS resolve injections
+# for example using a static hosts list for in servers you will never signalize your first node in advance.
+# in accordance blackhole shield you will never accidentally evesdrop anything.
+
+# this script needs to be run as root or privileged user
+
+# by the way this is usefull for keeping the tunnel setup alive if you are using the last node for the outgoing dns servers / you could also switch the servers routes as you wish on the fly or random just extend this example
+
+# regular_routing=("dev tun1" "www.example.com") will result in routing all IPs resolved for the domain(2nd) by the device tun1(1fst)
+# regular_routing=("dev tun1" "www.example.com" "via 192.168.10.1" "my.bankaccount.com") will result in routing all IPs resolved for the domain www.example.com by the device tun1 and all IPs resolved for the domain my.bankaccount.com by the IP4 gateway 192.168.10.1
+
+VERSION=0.0.3
+
+if [ "$EUID" -ne 0 ]
+then
+    prefix="sudo"
+else
+then
+    prefix=""
+fi
+
+regular_routing=("dev tun1" "www.example.com" "via 192.168.10.1" "my.bankaccount.com" "dev tun3" "movies.org")
+
+# default_rt will set your default outgoing device/gw if something goes wrong with routing or the route setup.
+default_rt=("dev tun3")
+
+for ((i=2; i<$((${#default_rt[@]}+2)); i=$i+1))
+do
+    echo "sudo ip route replace 0.0.0.0/$(($i-1)) ${default_rt[$i-2]}"
+    sudo screen -dmt rt $prefix route replace 0.0.0.0/$(($i-1)) ${default_rt[$i-2]}
+    sudo screen -dmt rt $prefix route replace 128.0.0.0/$(($i-1)) ${default_rt[$i-2]}
+done
+for ((i=0; i<$((${#regular_routing[@]})); i=$i+2))
+do
+    resolved_ip=($(resolveip ${regular_routing[$i+1]} | sed -n -e "s/.* is \(.*\)/\1/gp"))
+    for ((x=0;x<${#resolved_ip[@]};x++))
+    do
+        echo "$prefix ip route replace ${resolved_ip[$x]} ${regular_routing[$i]}"
+        screen -dmt rt sudo $prefix route replace ${resolved_ip[$x]} ${regular_routing[$i]}
+    done
+    # get rid of sleep one if you are using a static /etc/hosts config only
+    sleep 1
+done
+exit

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+VERSION=0.0.2
+
+#########################################################################################
+#
+# 4utoBl4ck 0.0.2 (4utoBl4ck)
+#
+# Idea / Written by Sebastian Vivian Gresser - All Rights Reserved
+#
+# Copyright (C) by Sebastian Vivian Gresser - All Rights Reserved
+#
+#########################################################################################
+#
+# 4utoBl4ck: will blackhole any suspicious ips or domains in the domainlist
+# with cron you can add this to auto-blackhole any network if you have their
+# load balance domain names
+#  |-> 4utoBl4ck needs Grsecurity's blackhole patch for ip route to work properly!!!
+#
+# SETTINGS
+#
+# global swtich for CIDR / ROUTE BANISH
+activate_banish_cidr=1
+# examples for the domainlist domainlist=("example.com" 0 "example.de" 1)
+# 0 banish IP | 1 banish CIDR/ROUTE
+domainlist=()
+#
+#########################################################################################
+
+for (( i=0; i<${#domainlist[@]}; i+=2 ))
+do
+    ip="$(ping -c 1 ${domainlist[$i]} | sed -n -e 's/^PING.*(\(.*\))\ 56.*/\1/p')"
+    echo $ip
+    if [ $activate_banish_cidr = 1 ] && [ ${domainlist[$i+1]} = 1 ]
+    then
+        range="$(whois $ip | sed -n -e 's/^CIDR:[[:space:]]*\(.*\)/\1/p')"
+        if [ "$range" = "" ]
+        then
+            range="$(whois $ip | sed -n -e 's/^route:[[:space:]]*\(.*\)/\1/p')"
+        fi
+        echo $range
+        if [ ! "$range" = "" ]
+        then
+            ip route add blackhole $range
+        fi
+    else
+        ip route add blackhole $ip
+    fi
+done

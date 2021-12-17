@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# router masquerading for routing all traffic from $1 (if device) through existing tuns
+
+VERSION=0.0.1
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+tuns=($(ifconfig -a | sed -n -e "s/^tun\(.*\)\:.*$/\1/gp"))
+for((i=0;i<${#tuns[@]};i++))
+do
+    iptables -t nat -A POSTROUTING -o tun${tuns[$i]} -j MASQUERADE
+    iptables -A FORWARD -i $1 -o tun${tuns[$i]} -m state --state RELATED,ESTABLISHED -j ACCEPT
+done
+
