@@ -32,6 +32,10 @@ VERSION=0.1.8
 # <->4routing a small usefull tool for changing your routing on the fly using a          #
 #  text editor                                                                           #
 #                                                                                        #
+# <->4roter_masq forwarding nets on different devices                                    #
+#                                                                                        #
+# <->4GhostInTheNet.sh stealthing a linux device by disabling arp and randomizing mac    #
+#    modified version of https://github.com/cryptolok/GhostInTheNet                      #
 ###################################### 4MAINTENANCE ######################################
 #                                                                                        #
 # <->4git: will start multiple based git pull or clone processes                         #
