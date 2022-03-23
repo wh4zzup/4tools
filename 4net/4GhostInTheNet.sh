@@ -29,8 +29,17 @@ then
     exit 1
 fi
 # use 0 to deactivate network manager and/or dhclient
-use_nm=1
-use_dhc=1
+# usage of the network manager results in exposing your client
+# because it will use dhclient with a default configuration
+use_nm=0
+# USAGE OF DHCLIENT WILL EXPOSE YOU
+use_dhc=0
+# NETWORK if use_dhc=0 - you have to discover this yourself!
+client_network="192.168.20.0/24"
+# CLIENT IP use_dhc=0 - you have to discover this yourself!
+client_ip="192.168.20.123"
+
+
 # just type it and it will execute the last command as root
 # arguments/variables assignments
 #SWITCH=$(echo $1 | tr '[:upper:]' '[:lower:]')
@@ -61,6 +70,7 @@ echo $CMD
 #case $SWITCH in on)
 if [[ "$SWITCH" = "on" ]]
 then
+
     # storing original MAC
     if [ ! $(which ethtool) ] && [ ! -f /etc/udev/rules.d/70-persistent-net.rules ]
     then
@@ -84,10 +94,9 @@ then
     echo 'Spoofing MAC address ...'
     echo
 #	ifdown $INTERFACE &> /dev/null
+
     nmcli con down $INTERFACE
-    if [ $use_nm = 1 ]; then
-        /etc/init.d/network-manager stop
-    fi
+    /etc/init.d/network-manager stop
 
     if [[ $CMD =~ .*ifconfig ]]; then
         $CMD $INTERFACE down
@@ -155,8 +164,13 @@ then
         nmcli con up $INTERFACE
         sleep 5
     fi
+    # use_dhc=1 WILL EXPOSE YOUR CLIENT TO THE ROUTER
     if [ $use_dhc = 1 ]; then
         dhclient $INTERFACE &> /dev/null
+    else
+        ifconfig $INTERFACE $client_ip
+        ip route add $client_network dev $INTERFACE proto kernel scope link src $client_ip
+    fi
     fi
 
 #TODO use already achived IP configuration to avoid broadcast ?
