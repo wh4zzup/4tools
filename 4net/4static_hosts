@@ -52,7 +52,7 @@
 # custom entries here
 ###########################################################
 
-VERSION=0.0.2
+VERSION=0.0.3
 
 if [ "$EUID" -ne 0 ]
 then
@@ -71,17 +71,20 @@ $prefix cp -p /etc/hosts /etc/hosts.bak
 if [ ! -e /etc/hosts.base ]
 then
     $prefix cp -p /etc/hosts/ /etc/hosts.base
+    $prefix chmod 600 /etc/hosts.base
 fi
 
 $prefix rm /etc/hosts
-$prefix echo "" > /etc/hosts_to_update
+echo "" > /tmp/hosts_to_update
+chmod 600 /tmp/hosts_to_update
 
 for ((z=0; z<${#hosts[@]}; z++))
 do
-     $prefix screen -dmt rs resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /etc/hosts_to_update
+     screen -dmt rs resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /tmp/hosts_to_update
      sleep 0.1
 done
 
-$prefix cat /etc/hosts_to_update > /etc/hosts
-$prefix cat /etc/hosts_to_update >> /etc/hosts
-$prefix rm /etc/hosts_to_update
+$prefix cat /etc/hosts.base > /etc/hosts
+$prefix cat /tmp/hosts_to_update >> /etc/hosts
+$prefix chmod 644 /etc/hosts
+$prefix rm /tmp/hosts_to_update
