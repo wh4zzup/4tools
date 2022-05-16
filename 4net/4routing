@@ -34,8 +34,8 @@ default_rt=("dev tun3")
 for ((i=2; i<$((${#default_rt[@]}+2)); i=$i+1))
 do
     echo "sudo ip route replace 0.0.0.0/$(($i-1)) ${default_rt[$i-2]}"
-    sudo screen -dmt rt $prefix route replace 0.0.0.0/$(($i-1)) ${default_rt[$i-2]}
-    sudo screen -dmt rt $prefix route replace 128.0.0.0/$(($i-1)) ${default_rt[$i-2]}
+    $prefix screen -dmt rt route replace 0.0.0.0/$(($i-1)) ${default_rt[$i-2]}
+    $prefix screen -dmt rt route replace 128.0.0.0/$(($i-1)) ${default_rt[$i-2]}
 done
 for ((i=0; i<$((${#regular_routing[@]})); i=$i+2))
 do
@@ -43,7 +43,7 @@ do
     for ((x=0;x<${#resolved_ip[@]};x++))
     do
         echo "$prefix ip route replace ${resolved_ip[$x]} ${regular_routing[$i]}"
-        screen -dmt rt sudo $prefix route replace ${resolved_ip[$x]} ${regular_routing[$i]}
+        $prefix screen -dmt rt route replace ${resolved_ip[$x]} ${regular_routing[$i]}
     done
     # get rid of sleep one if you are using a static /etc/hosts config only
     sleep 1

@@ -52,7 +52,7 @@
 # custom entries here
 ###########################################################
 
-VERSION=0.0.1
+VERSION=0.0.2
 
 if [ "$EUID" -ne 0 ]
 then
@@ -66,18 +66,22 @@ fi
 hosts=("hostname1.com", "hostname2.es", "hostname3.fr", "etc.de")
 
 hosts_out=""
-cp -p /etc/hosts /etc/hosts.bak
-rm /etc/hosts
-echo "" > /etc/hosts_to_update
+$prefix cp -p /etc/hosts /etc/hosts.bak
+
+if [ ! -e /etc/hosts.base ]
+then
+    $prefix cp -p /etc/hosts/ /etc/hosts.base
+fi
+
+$prefix rm /etc/hosts
+$prefix echo "" > /etc/hosts_to_update
+
 for ((z=0; z<${#hosts[@]}; z++))
 do
-     resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /etc/hosts_to_update
+     $prefix screen -dmt rs resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /etc/hosts_to_update
+     sleep 0.1
 done
-if [ -e /etc/hosts.base ]
-then
-    cat /etc/hosts.base > /etc/hosts
-    cat /etc/hosts_to_update >> /etc/hosts
-else
-    cat /etc/hosts_to_update > /etc/hosts
-fi
-rm /etc/hosts_to_update
+
+$prefix cat /etc/hosts_to_update > /etc/hosts
+$prefix cat /etc/hosts_to_update >> /etc/hosts
+$prefix rm /etc/hosts_to_update
