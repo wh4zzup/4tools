@@ -171,7 +171,6 @@ then
         ifconfig $INTERFACE $client_ip
         ip route add $client_network dev $INTERFACE proto kernel scope link src $client_ip
     fi
-    fi
 
 #TODO use already achived IP configuration to avoid broadcast ?
     echo 'Now you are a cyberspy, robotic guy'

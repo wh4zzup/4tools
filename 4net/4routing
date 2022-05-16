@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# start with while true; do sh/bash routing.sh; done for static routing by devices/IPs
+# start with...
+########################################
+# while true; do sh/bash 4routing; done
+########################################
+# ...for static routing by devices/IPs
 # you should use a static /etc/hosts for the IP you are using to be secure regarding DNS resolve injections
 # for example using a static hosts list for in servers you will never signalize your first node in advance.
 # in accordance blackhole shield you will never accidentally evesdrop anything.

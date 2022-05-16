@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# start with sh/bash 4static_hosts; done for static routing by devices/IPs
+# with this script you can generate a static hosts name resolution which will be usefull if you are paranoid
+# according getting injected by nameserver usage @ unsafe networks.
+
+# this script needs to be run as root or privileged user.
+
+# it can be used with a cronjob but using it manually is recommended.
+
+###########################################################
+# /etc/hosts.base is used as basic hosts file and may look as follows (just copy your current /etc/hosts to /etc/hosts.base if you are not sure about the needed entries):
+
+# /etc/hosts: Local Host Database
+#
+# This file describes a number of aliases-to-address mappings for the for
+# local hosts that share this file.
+#
+# The format of lines in this file is:
+#
+# IP_ADDRESS	canonical_hostname	[aliases...]
+#
+#The fields can be separated by any number of spaces or tabs.
+#
+# In the presence of the domain name service or NIS, this file may not be
+# consulted at all; see /etc/host.conf for the resolution order.
+#
+
+# IPv4 and IPv6 localhost aliases
+#127.0.0.1	localhost
+#::1		localhost
+
+#
+# Imaginary network.
+#10.0.0.2               myname
+#10.0.0.3               myfriend
+#
+# According to RFC 1918, you can use the following IP networks for private
+# nets which will never be connected to the Internet:
+#
+#       10.0.0.0        -   10.255.255.255
+#       172.16.0.0      -   172.31.255.255
+#       192.168.0.0     -   192.168.255.255
+#
+# In case you want to be able to connect directly to the Internet (i.e. not
+# behind a NAT, ADSL router, etc...), you need real official assigned
+# numbers.  Do not try to invent your own network numbers but instead get one
+# from your network provider (if any) or from your regional registry (ARIN,
+# APNIC, LACNIC, RIPE NCC, or AfriNIC.)
+#
+
+# custom entries here
+###########################################################
+
+VERSION=0.0.1
+
+if [ "$EUID" -ne 0 ]
+then
+    prefix="sudo"
+else
+then
+    prefix=""
+fi
+
+# this is the list of hostnames which will be resolved for your hosts config file...
+hosts=("hostname1.com", "hostname2.es", "hostname3.fr", "etc.de")
+
+hosts_out=""
+cp -p /etc/hosts /etc/hosts.bak
+rm /etc/hosts
+echo "" > /etc/hosts_to_update
+for ((z=0; z<${#hosts[@]}; z++))
+do
+     resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /etc/hosts_to_update
+done
+if [ -e /etc/hosts.base ]
+then
+    cat /etc/hosts.base > /etc/hosts
+    cat /etc/hosts_to_update >> /etc/hosts
+else
+    cat /etc/hosts_to_update > /etc/hosts
+fi
+rm /etc/hosts_to_update

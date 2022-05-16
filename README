@@ -1,10 +1,10 @@
 #!/bin/bash
 
-VERSION=0.1.8
+VERSION=0.1.9
 
 ##########################################################################################
 #                                                                                        #
-# 4Toolz Collection 0.1.8 (4Toolz)                                                       #
+# 4Toolz Collection 0.1.9 (4Toolz)                                                       #
 #                                                                                        #
 # Idea / Written by Sebastian Vivian Gresser - All Rights Reserved                       #
 #                                                                                        #
@@ -31,6 +31,9 @@ VERSION=0.1.8
 #                                                                                        #
 # <->4routing a small usefull tool for changing your routing on the fly using a          #
 #  text editor                                                                           #
+#                                                                                        #
+# <->4static_hosts a small usefull tool for generating a static hosts config             #
+#  which can be used with 4 routing if you do not trust your nameserver provider         #
 #                                                                                        #
 # <->4roter_masq forwarding nets on different devices                                    #
 #                                                                                        #
