@@ -54,11 +54,23 @@
 
 VERSION=0.0.3
 
+# Sort the resolved hostnames by either
+# - not used yet and propably useless if your hosts are blocking ping
+# - will slowdown the host resolving
+# 1 fastest to slowest
+# 2 slowest to fastest
+# 0 deactivated
+if [ ! "$1" = "" ]
+then
+    sorting=$1
+else
+    sorting=0
+fi
+
 if [ "$EUID" -ne 0 ]
 then
     prefix="sudo"
 else
-then
     prefix=""
 fi
 
@@ -81,6 +93,18 @@ chmod 600 /tmp/hosts_to_update
 for ((z=0; z<${#hosts[@]}; z++))
 do
      screen -dmt rs resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1 ${hosts[$z]}/p" >> /tmp/hosts_to_update
+     #echo "" > /tmp/ips_resolve_ranking
+     #ips=($(resolveip ${hosts[$z]} | sed -n -e "s/^.* is \(.*\)/\1/p"))
+     #for ((i=0; i<${#ips[@]}; i++))
+     #do
+     #  ping=$(ping -c 1 ${ips[$i]} | grep icmp | sed -n -e "s/^.*[time|Zeit]=\(.*\) ms/\1/p")
+     #  echo "$ping ${ips[$i]} ${hosts[$z]}" /tmp/ips_resolve_ranking
+     #done
+     #ips=(sort -n /tmp/ips_resolve_ranking)
+     #for ((i=0; i<$((${#ips[@]}+3)); i=$i+3))
+     #do
+     #  echo "${ips[$(($i+1))} ${ips[$(($i+2))}" >> /tmp/hosts_to_update
+     #done
      sleep 0.1
 done
 

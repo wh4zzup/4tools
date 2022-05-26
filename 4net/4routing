@@ -22,7 +22,6 @@ if [ "$EUID" -ne 0 ]
 then
     prefix="sudo"
 else
-then
     prefix=""
 fi
 
