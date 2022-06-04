@@ -1,13 +1,18 @@
 #!/bin/bash
 
 # start with sh/bash 4static_hosts; done for static routing by devices/IPs
-# with this script you can generate a static hosts name resolution which will be usefull if you are paranoid
-# according getting injected by nameserver usage @ unsafe networks.
-
+# with this script you can generate a static hosts name resolution.
+#
 # this script needs to be run as root or privileged user.
-
-# it can be used with a cronjob but using it manually is recommended.
-
+#
+# - it can be used with a cronjob but using it manually is recommended.
+#
+# - it will improve the performance of your internet experience and decrease the net load.
+#
+# - it will prevent DNS leaks.
+#
+# - it will prevent injection attempts by nameserver usage if you are using unsafe networks.
+#
 ###########################################################
 # /etc/hosts.base is used as basic hosts file and may look as follows (just copy your current /etc/hosts to /etc/hosts.base if you are not sure about the needed entries):
 
@@ -73,6 +78,13 @@ then
 else
     prefix=""
 fi
+
+# IPV4 Fraq Improvements
+# memory allocation and timing for defragmenting packages - please test for optimal values
+# the current settings should speed up the throughput of the ipfrag buffer up to 80M/s
+$prefix echo 8388608 > /proc/sys/net/ipv4/ipfrag_high_thresh
+$prefix echo 393216 > /proc/sys/net/ipv4/ipfrag_low_thresh
+$prefix echo 30 > /proc/sys/net/ipv4/ipfrag_time
 
 # this is the list of hostnames which will be resolved for your hosts config file...
 hosts=("hostname1.com", "hostname2.es", "hostname3.fr", "etc.de")
